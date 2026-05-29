@@ -15,14 +15,14 @@
     .refresh-badge { font-size: 11px; color: #7faa6a; border: 1px solid #3a5a2a; border-radius: 20px; padding: 3px 10px; white-space: nowrap; }
     .refresh-badge span { color: #b8d82c; font-weight: 700; }
     .tab-bar { background: #142a1c; border-bottom: 2px solid #1e3d25; padding: 10px 16px 0; display: flex; flex-wrap: wrap; gap: 6px; }
-    .tab-btn { background: #1e3d25; color: #8fba70; border: 1px solid #2a5232; border-bottom: none; border-radius: 6px 6px 0 0; padding: 7px 13px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s ease; white-space: nowrap; position: relative; bottom: -2px; }
+    .tab-btn { background: #1e3d25; color: #8fba70; border: 1px solid #2a5232; border-bottom: none; border-radius: 6px 6px 0 0; padding: 7px 13px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.18s ease; white-space: nowrap; letter-spacing: 0.3px; position: relative; bottom: -2px; }
     .tab-btn:hover { background: #2c5235; color: #c8e63c; }
     .tab-btn.active { background: #0e1f18; color: #b8d82c; border-color: #b8d82c; border-bottom-color: #0e1f18; font-weight: 700; }
     .cat-num { font-size: 10px; opacity: 0.75; display: block; line-height: 1; margin-bottom: 1px; }
-    .frame-container { flex: 1; position: relative; background: #fff; min-height: 600px; }
+    .frame-container { flex: 1; position: relative; background: #fff; }
     .frame-pane { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
     .frame-pane.active { display: block; }
-    .frame-pane iframe { width: 100%; height: 100%; border: none; display: block; min-height: 600px; }
+    .frame-pane iframe { width: 100%; height: 100%; border: none; display: block; }
     .frame-loading { position: absolute; inset: 0; background: #0e1f18; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 5; transition: opacity 0.4s; }
     .frame-loading.hidden { opacity: 0; pointer-events: none; }
     .spinner { width: 40px; height: 40px; border: 4px solid #1e3d25; border-top-color: #b8d82c; border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -30,6 +30,8 @@
     .loading-text { color: #7faa6a; font-size: 13px; }
     footer { background: #0a1810; border-top: 1px solid #1e3d25; padding: 6px 20px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #4a7a40; }
     footer a { color: #6a9a58; text-decoration: none; }
+    #last-refresh { color: #4a7a40; }
+    @media (max-width: 600px) { header { padding: 10px 12px 8px; gap: 10px; } .ptg-logo { font-size: 18px; } .header-title h1 { font-size: 15px; } .tab-bar { padding: 8px 10px 0; gap: 4px; } .tab-btn { font-size: 11px; padding: 6px 10px; } }
   </style>
 </head>
 <body>
@@ -39,7 +41,7 @@
     <h1>GS Primavera CDR 2026</h1>
     <p>Grand Slam · Ciudad de la Raqueta · Madrid</p>
   </div>
-  <div class="refresh-badge">Auto-refresh <span id="countdown">30</span>s</div>
+  <div class="refresh-badge">🔄 Auto-refresh <span id="countdown">30</span>s</div>
 </header>
 <div class="tab-bar" id="tabBar"></div>
 <div class="frame-container" id="frameContainer"></div>
@@ -48,73 +50,73 @@
   <span id="last-refresh"></span>
 </footer>
 <script>
-  var SHEET_ID = '1cstwvnzIAmO_5ySVBg5_1xKxbWLoi-_HwwDJocylYhA';
-  var BASE = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/pub';
-  var CATS = [
-    { label: 'OXDOG',      num: 1,  gid: 530164280  },
-    { label: 'PPS',        num: 2,  gid: 317492401  },
-    { label: 'SEAGRAMS',   num: 3,  gid: 1596771109 },
-    { label: 'ARLA PROT.', num: 4,  gid: 110946922  },
-    { label: 'BAFER HIS.', num: 5,  gid: 1534356177 },
-    { label: 'BORN',       num: 6,  gid: 270913179  },
-    { label: 'MAHOU',      num: 7,  gid: 918971405  },
-    { label: 'CUIMO',      num: 8,  gid: 1877487499 },
-    { label: 'ELECTROLIT', num: 9,  gid: 2058908230 },
-    { label: 'WAH',        num: 10, gid: 234224433  },
-    { label: 'FOTOLAB',    num: 11, gid: 1452974147 },
-    { label: 'TREATWELL',  num: 12, gid: 1176758330 },
+  const BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTC6_S6e7pDA-RJlyPfmjpqxVxxuH0ocaF4UqPyFMHX1as1SCpA7przOFthkcTiO-jOeqLna6nZbaqx/pub';
+  const CATS = [
+    { label: 'OXDOG', num: 1, gid: 530164280 },
+    { label: 'PPS', num: 2, gid: 317492401 },
+    { label: 'SEAGRAMS', num: 3, gid: 1596771109 },
+    { label: 'ARLA PROT.', num: 4, gid: 110946922 },
+    { label: 'BAFER HIS.', num: 5, gid: 1534356177 },
+    { label: 'BORN', num: 6, gid: 270913179 },
+    { label: 'MAHOU', num: 7, gid: 918971405 },
+    { label: 'CUIMO', num: 8, gid: 1877487499 },
+    { label: 'ELECTROLIT', num: 9, gid: 2058908230 },
+    { label: 'WAH', num: 10, gid: 234224433 },
+    { label: 'FOTOLAB', num: 11, gid: 1452974147 },
+    { label: 'TREATWELL', num: 12, gid: 1176758330 },
   ];
-  var activeIdx = 0, countdown = 30;
-  var countdownEl = document.getElementById('countdown');
-  var lastRefEl = document.getElementById('last-refresh');
-  var tabBar = document.getElementById('tabBar');
-  var frameArea = document.getElementById('frameContainer');
-  CATS.forEach(function(cat, i) {
-    var btn = document.createElement('button');
+  let activeIdx = 0, countdown = 30;
+  let countdownEl = document.getElementById('countdown');
+  let lastRefEl = document.getElementById('last-refresh');
+  const tabBar = document.getElementById('tabBar');
+  const frameArea = document.getElementById('frameContainer');
+  CATS.forEach((cat, i) => {
+    const btn = document.createElement('button');
     btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
     btn.innerHTML = '<span class="cat-num">Cat ' + cat.num + '</span>' + cat.label;
-    btn.addEventListener('click', function() { switchTab(i); });
+    btn.addEventListener('click', () => switchTab(i));
     tabBar.appendChild(btn);
-    var pane = document.createElement('div');
+    const pane = document.createElement('div');
     pane.className = 'frame-pane' + (i === 0 ? ' active' : '');
     pane.id = 'pane-' + i;
-    var overlay = document.createElement('div');
+    const overlay = document.createElement('div');
     overlay.className = 'frame-loading';
     overlay.id = 'loading-' + i;
-    overlay.innerHTML = '<div class="spinner"></div><div class="loading-text">Cargando Cat ' + cat.num + ' ' + cat.label + '...</div>';
+    overlay.innerHTML = '<div class="spinner"></div><div class="loading-text">Cargando Cat ' + cat.num + ' ' + cat.label + '…</div>';
     pane.appendChild(overlay);
-    var iframe = document.createElement('iframe');
+    const iframe = document.createElement('iframe');
     iframe.id = 'frame-' + i;
     iframe.title = 'Cat ' + cat.num + ' ' + cat.label;
     iframe.setAttribute('loading', 'lazy');
+    iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups allow-forms');
     pane.appendChild(iframe);
     frameArea.appendChild(pane);
   });
   function iframeSrc(gid) { return BASE + '?gid=' + gid + '&single=true&output=html&rm=minimal'; }
   function loadFrame(idx) {
-    var iframe = document.getElementById('frame-' + idx);
-    var overlay = document.getElementById('loading-' + idx);
+    const iframe = document.getElementById('frame-' + idx);
+    const overlay = document.getElementById('loading-' + idx);
     overlay.classList.remove('hidden');
     iframe.src = '';
-    requestAnimationFrame(function() { iframe.onload = function() { overlay.classList.add('hidden'); }; iframe.src = iframeSrc(CATS[idx].gid); });
+    requestAnimationFrame(() => { iframe.onload = () => overlay.classList.add('hidden'); iframe.src = iframeSrc(CATS[idx].gid); });
   }
   function switchTab(idx) {
-    var tabs = tabBar.querySelectorAll('.tab-btn');
-    var panes = frameArea.querySelectorAll('.frame-pane');
+    const tabs = tabBar.querySelectorAll('.tab-btn');
+    const panes = frameArea.querySelectorAll('.frame-pane');
     tabs[activeIdx].classList.remove('active'); panes[activeIdx].classList.remove('active');
     activeIdx = idx;
     tabs[activeIdx].classList.add('active'); panes[activeIdx].classList.add('active');
-    var iframe = document.getElementById('frame-' + idx);
+    const iframe = document.getElementById('frame-' + idx);
     if (!iframe.src || iframe.src === 'about:blank' || iframe.src === '') loadFrame(idx);
   }
   function refreshActive() {
     loadFrame(activeIdx);
-    var n = new Date();
-    lastRefEl.textContent = 'Actualizado: ' + n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0') + ':' + n.getSeconds().toString().padStart(2,'0');
+    const now = new Date();
+    lastRefEl.textContent = 'Actualizado: ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
   }
   loadFrame(0);
-  setInterval(function() { if (document.visibilityState !== 'visible') return; countdown--; countdownEl.textContent = countdown; if (countdown <= 0) { countdown = 30; refreshActive(); } }, 1000);
-  document.addEventListener('keydown', function(e) { if (e.key === 'ArrowRight') switchTab((activeIdx + 1) % CATS.length); if (e.key === 'ArrowLeft') switchTab((activeIdx - 1 + CATS.length) % CATS.length); });
+  setInterval(() => { if (document.visibilityState !== 'visible') return; countdown--; countdownEl.textContent = countdown; if (countdown <= 0) { countdown = 30; refreshActive(); } }, 1000);
+  document.addEventListener('keydown', e => { if (e.key === 'ArrowRight') switchTab((activeIdx + 1) % CATS.length); if (e.key === 'ArrowLeft') switchTab((activeIdx - 1 + CATS.length) % CATS.length); });
 </script>
 </body>
 </html>
