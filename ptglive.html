@@ -119,7 +119,7 @@
 </div>
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbwnahyHxhvacGRiKHs0yWBD04wGrI7AbcjQV1Pi4paPp8AwhwEi3eMIuNWxGTke3RsY/exec';
+const API = 'https://script.google.com/macros/s/AKfycbxl2y6QLNqeLwcF_HXPt-W5e4qYekx9o3Ruhur1rAihQ94l0WRb-7xe1uq4NV7l9cJv/exec';
 
 const CATS = [
   {num:1, label:'OXDOG'},   {num:2, label:'PPS'},
@@ -233,7 +233,7 @@ function renderActive() {
           const winRight = hasResult && Number(r2) > Number(r1);
           const rowClass = winLeft ? 'winner-left' : winRight ? 'winner-right' : hasResult ? '' : 'no-result';
           html += '<div class="match-row ' + rowClass + '">';
-          html += '<div class="team-left">' + esc(m['Equipo 1'] || m['equipo1'] || '?') + '</div>';
+          html += '<div class="team-left">' + esc(m['nombre_equipo1'] || m['Equipo 1'] || '?') + '</div>';
           html += '<div class="score-box">';
           if (hasResult) {
             html += '<span class="score-num">' + r1 + '</span>';
@@ -243,7 +243,7 @@ function renderActive() {
             html += '<span style="color:#3a5a2a;font-size:11px;">vs</span>';
           }
           html += '</div>';
-          html += '<div class="team-right">' + esc(m['Equipo 2'] || m['equipo2'] || '?') + '</div>';
+          html += '<div class="team-right">' + esc(m['nombre_equipo2'] || m['Equipo 2'] || '?') + '</div>';
           html += '</div>';
         });
         html += '</div>';
@@ -259,10 +259,10 @@ function renderActive() {
     html += '<div class="cuadro-section">';
     html += '<div class="section-title">Cuadro Final</div>';
 
-    // Group by cuadro/ronda
+    // Group by 'orden' to get all rounds
     const rounds = {};
     cuadroRows.forEach(r => {
-      const rnd = r['cuadro'] || r['orden'] || 'Final';
+      const rnd = r['orden'] || r['cuadro'] || 'Final';
       if (!rounds[rnd]) rounds[rnd] = [];
       rounds[rnd].push(r);
     });
@@ -279,11 +279,11 @@ function renderActive() {
         const winRight = hasResult && Number(r2) > Number(r1);
         html += '<div class="bracket-match">';
         html += '<div class="bracket-team' + (winLeft ? ' winner' : '') + '">';
-        html += '<span class="bt-name">' + esc(m['Equipo 1'] || m['equipo1'] || '?') + '</span>';
+        html += '<span class="bt-name">' + esc(m['nombre_equipo1'] || m['Equipo 1'] || '?') + '</span>';
         if (hasResult) html += '<span class="bt-score">' + r1 + '</span>';
         html += '</div>';
         html += '<div class="bracket-team' + (winRight ? ' winner' : '') + '">';
-        html += '<span class="bt-name">' + esc(m['Equipo 2'] || m['equipo2'] || '?') + '</span>';
+        html += '<span class="bt-name">' + esc(m['nombre_equipo2'] || m['Equipo 2'] || '?') + '</span>';
         if (hasResult) html += '<span class="bt-score">' + r2 + '</span>';
         html += '</div>';
         html += '</div>';
@@ -299,8 +299,8 @@ function renderActive() {
 function computeStanding(matches) {
   const teams = {};
   matches.forEach(m => {
-    const e1 = m['Equipo 1'] || m['equipo1'] || '';
-    const e2 = m['Equipo 2'] || m['equipo2'] || '';
+    const e1 = m['nombre_equipo1'] || m['Equipo 1'] || '';
+    const e2 = m['nombre_equipo2'] || m['Equipo 2'] || '';
     if (!teams[e1]) teams[e1] = {name: e1, wins: 0, played: 0, diff: 0};
     if (!teams[e2]) teams[e2] = {name: e2, wins: 0, played: 0, diff: 0};
     const r1 = Number(m['resultado_equipo1']);
