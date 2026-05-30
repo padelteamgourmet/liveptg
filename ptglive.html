@@ -224,10 +224,18 @@ function renderActive() {
   // CUADRO FINAL
   if (cuadroRows.length) {
     html += '<div class="section-label" style="margin-top:8px">Cuadro final</div>';
+    const ROUND_ORDER = ['Octavos de final','Cuartos de final','Semifinales','Final','Campeón'];
     const rounds = {};
-    cuadroRows.forEach(r=>{ const k=r['orden']||r['cuadro']||'Final'; if(!rounds[k])rounds[k]=[]; rounds[k].push(r); });
+    cuadroRows.forEach(r=>{ const k=r['fase']||'Final'; if(!rounds[k])rounds[k]=[]; rounds[k].push(r); });
     html += '<div class="bracket">';
-    Object.keys(rounds).sort((a,b)=>Number(a)-Number(b)||String(a).localeCompare(String(b))).forEach(rnd=>{
+    // Sort rounds by canonical order; fallback alphabetical for unknowns
+    const sortedRounds = Object.keys(rounds).sort((a,b)=>{
+      const ia=ROUND_ORDER.indexOf(a), ib=ROUND_ORDER.indexOf(b);
+      if(ia>=0&&ib>=0) return ia-ib;
+      if(ia>=0) return -1; if(ib>=0) return 1;
+      return a.localeCompare(b);
+    });
+    sortedRounds.forEach(rnd=>{
       html += '<div class="bracket-round"><div class="bracket-round-label">'+esc(String(rnd))+'</div>';
       rounds[rnd].forEach(m=>{
         const r1=m['resultado_equipo1'], r2=m['resultado_equipo2'];
