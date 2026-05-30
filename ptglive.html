@@ -84,7 +84,7 @@
     .no-score{font-family:var(--font-mono);font-size:10px;color:var(--fog);letter-spacing:.06em}
 
     /* CUADRO */
-    .bracket-wrap{position:relative;overflow-x:auto}
+    .bracket-wrap{position:relative;overflow:hidden}
     .br-label{font-family:var(--font-mono);font-size:9px;font-weight:600;color:var(--ash);text-transform:uppercase;letter-spacing:.12em;text-align:center;position:absolute}
     .bm{position:absolute;border:1px solid var(--paper-deep);border-radius:12px;overflow:hidden;background:var(--paper);box-sizing:border-box}
     .bm-team{display:flex;align-items:center;height:40px;padding:0 10px;gap:8px}
@@ -292,8 +292,8 @@ function renderActive(){
   }
 
   if(cuadroRows.length){
-    html+='<div class="section-label" style="margin-top:8px">Cuadro final</div>';
-    const ROUND_ORDER=['Octavos de final','Cuartos de final','Semifinales','Final','Campeón'];
+    html+='<div class="section-label" style="margin-top:8px">Cuadro final</div><div style="overflow-x:auto;padding-bottom:8px">';
+    const ROUND_ORDER=['Octavos de final','Cuartos de final','Semifinales','Final','Campeón','Campeones'];
     const roundsMap={};
     cuadroRows.forEach(r=>{ const k=r['fase']||'Final'; if(!roundsMap[k])roundsMap[k]=[]; roundsMap[k].push(r); });
     const sortedNames=Object.keys(roundsMap).sort((a,b)=>{
@@ -302,7 +302,7 @@ function renderActive(){
       return a.localeCompare(b);
     });
     const roundsData=sortedNames.map(n=>roundsMap[n]);
-    html+=renderBracket(roundsData,sortedNames);
+    html+=renderBracket(roundsData,sortedNames)+'</div>';
   }
 
   document.getElementById('content').innerHTML=html||'<div class="empty"><div class="empty-text">Sin datos</div></div>';
@@ -406,7 +406,7 @@ setInterval(fetchData,60000);
     .no-score{font-family:var(--font-mono);font-size:10px;color:var(--fog);letter-spacing:.06em}
 
     /* CUADRO */
-    .bracket-wrap{position:relative;overflow-x:auto}
+    .bracket-wrap{position:relative;overflow:hidden}
     .br-label{font-family:var(--font-mono);font-size:9px;font-weight:600;color:var(--ash);text-transform:uppercase;letter-spacing:.12em;text-align:center;position:absolute}
     .bm{position:absolute;border:1px solid var(--paper-deep);border-radius:12px;overflow:hidden;background:var(--paper);box-sizing:border-box}
     .bm-team{display:flex;align-items:center;height:40px;padding:0 10px;gap:8px}
