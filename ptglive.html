@@ -84,16 +84,20 @@
     .no-score{font-family:var(--font-mono);font-size:10px;color:var(--fog);letter-spacing:.06em}
 
     /* CUADRO */
-    .bracket{display:flex;gap:16px;overflow-x:auto;padding-bottom:4px}
-    .bracket-round{display:flex;flex-direction:column;gap:10px;min-width:260px}
-    .bracket-round-label{font-family:var(--font-mono);font-size:9px;font-weight:600;color:var(--ash);text-transform:uppercase;letter-spacing:.12em;text-align:center;margin-bottom:4px}
-    .bracket-match{background:var(--paper);border:1px solid var(--paper-deep);border-radius:12px;overflow:hidden}
-    .bracket-team{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;font-size:12px;border-bottom:1px solid var(--paper-deep)}
-    .bracket-team:last-child{border-bottom:none}
-    .bracket-team.winner{background:var(--court);color:var(--paper)}
-    .bracket-team .bt-name{flex:1;line-height:1.3}
-    .bracket-team .bt-score{font-family:var(--font-mono);font-weight:700;min-width:22px;text-align:center;font-size:14px}
-    .bracket-team.winner .bt-name,.bracket-team.winner .bt-score{color:var(--paper)}
+    .bracket-wrap{position:relative;overflow-x:auto}
+    .br-label{font-family:var(--font-mono);font-size:9px;font-weight:600;color:var(--ash);text-transform:uppercase;letter-spacing:.12em;text-align:center;position:absolute}
+    .bm{position:absolute;border:1px solid var(--paper-deep);border-radius:12px;overflow:hidden;background:var(--paper);box-sizing:border-box}
+    .bm-team{display:flex;align-items:center;height:40px;padding:0 10px;gap:8px}
+    .bm-team.bm-win{background:var(--court)}
+    .bm-team.bm-center{height:100%;align-items:center;justify-content:center}
+    .bm-div{height:1px;background:var(--paper-deep);flex-shrink:0}
+    .bm-names{flex:1;overflow:hidden}
+    .bm-p1{font-size:11px;font-weight:600;color:var(--ink);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bm-p2{font-size:10px;color:var(--ash);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bm-team.bm-win .bm-p1,.bm-team.bm-win .bm-p2{color:var(--paper)}
+    .bm-team.bm-center .bm-p1{font-size:12px;font-weight:700;color:var(--court)}
+    .bm-score{font-family:var(--font-mono);font-weight:700;font-size:15px;min-width:22px;text-align:center;flex-shrink:0;color:rgba(244,239,225,.7)}
+    .bm-team.bm-win .bm-score{color:var(--paper)}
 
     /* EMPTY / LOADING */
     .spinner-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:280px;gap:14px}
@@ -225,30 +229,15 @@ function renderActive() {
   if (cuadroRows.length) {
     html += '<div class="section-label" style="margin-top:8px">Cuadro final</div>';
     const ROUND_ORDER = ['Octavos de final','Cuartos de final','Semifinales','Final','Campeón'];
-    const rounds = {};
-    cuadroRows.forEach(r=>{ const k=r['fase']||'Final'; if(!rounds[k])rounds[k]=[]; rounds[k].push(r); });
-    html += '<div class="bracket">';
-    // Sort rounds by canonical order; fallback alphabetical for unknowns
-    const sortedRounds = Object.keys(rounds).sort((a,b)=>{
+    const roundsMap = {};
+    cuadroRows.forEach(r=>{ const k=r['fase']||'Final'; if(!roundsMap[k])roundsMap[k]=[]; roundsMap[k].push(r); });
+    const sortedNames = Object.keys(roundsMap).sort((a,b)=>{
       const ia=ROUND_ORDER.indexOf(a), ib=ROUND_ORDER.indexOf(b);
       if(ia>=0&&ib>=0) return ia-ib;
-      if(ia>=0) return -1; if(ib>=0) return 1;
       return a.localeCompare(b);
     });
-    sortedRounds.forEach(rnd=>{
-      html += '<div class="bracket-round"><div class="bracket-round-label">'+esc(String(rnd))+'</div>';
-      rounds[rnd].forEach(m=>{
-        const r1=m['resultado_equipo1'], r2=m['resultado_equipo2'];
-        const has=r1!==''&&r1!=null&&r1!==undefined;
-        const w1=has&&Number(r1)>Number(r2), w2=has&&Number(r2)>Number(r1);
-        html += '<div class="bracket-match">';
-        html += '<div class="bracket-team'+(w1?' winner':'')+'"><span class="bt-name">'+esc(m['nombre_equipo1']||m['Equipo 1']||'?')+'</span>'+(has?'<span class="bt-score">'+r1+'</span>':'')+'</div>';
-        html += '<div class="bracket-team'+(w2?' winner':'')+'"><span class="bt-name">'+esc(m['nombre_equipo2']||m['Equipo 2']||'?')+'</span>'+(has?'<span class="bt-score">'+r2+'</span>':'')+'</div>';
-        html += '</div>';
-      });
-      html += '</div>';
-    });
-    html += '</div>';
+    const roundsData = sortedNames.map(n=>roundsMap[n]);
+    html += renderBracket(roundsData, sortedNames);
   }
 
   document.getElementById('content').innerHTML = html||'<div class="empty"><div class="empty-text">Sin datos</div></div>';
@@ -263,17 +252,4 @@ function computeStanding(matches) {
     const r1=Number(m['resultado_equipo1']), r2=Number(m['resultado_equipo2']);
     const has=m['resultado_equipo1']!==''&&m['resultado_equipo1']!=null&&m['resultado_equipo1']!==undefined;
     if(has&&!isNaN(r1)&&!isNaN(r2)){
-      teams[e1].diff+=(r1-r2); teams[e2].diff+=(r2-r1);
-      if(r1>r2)teams[e1].wins++; else if(r2>r1)teams[e2].wins++;
-    }
-  });
-  return Object.values(teams).sort((a,b)=>b.wins-a.wins||b.diff-a.diff);
-}
-
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-fetchData();
-setInterval(fetchData, 60000);
-</script>
-</body>
-</html>
+      teams[e1].diff+=(r1-r2); teams[e2].diff+=(r
