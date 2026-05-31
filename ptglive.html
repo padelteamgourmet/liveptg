@@ -89,7 +89,7 @@ header img{height:44px;flex-shrink:0}
 <script>
 const API='https://script.google.com/macros/s/AKfycbxl2y6QLNqeLwcF_HXPt-W5e4qYekx9o3Ruhur1rAihQ94l0WRb-7xe1uq4NV7l9cJv/exec';
 const CATS=[{n:1,l:'OXDOG'},{n:2,l:'PPS'},{n:3,l:'SEAGRAMS'},{n:4,l:'ARLA PROT.'},{n:5,l:'BAFER HIS.'},{n:6,l:'BORN'},{n:7,l:'MAHOU'},{n:8,l:'CUIMO'},{n:9,l:'ELECTROLIT'},{n:10,l:'WAH'},{n:11,l:'FOTOLAB'},{n:12,l:'TREATWELL'}];
-const RORDER=['Octavos de final','Cuartos de final','Semifinales','Final','Campeón','Campeones'];
+const RORDER=['Octavos de final','Cuartos de final','Semifinal','Semifinales','Final','Campeón','Campeones'];
 let data=[],ac=0;
 const tabs=document.getElementById('tabs');
 CATS.forEach((c,i)=>{
@@ -179,7 +179,11 @@ function render(){
       h+='<table class="st"><thead><tr><th>Equipo</th><th>V</th><th>+/-J</th></tr></thead><tbody>';
       st.forEach((t,i)=>{
         const pc=i===0?'p1':i===1?'p2':'po',df=t.d>=0?'+'+t.d:t.d,dc=t.d>=0?'dp':'dn';
-        h+='<tr><td><span class="pos '+pc+'">'+(i+1)+'</span><span class="tn">'+e(t.name)+'</span></td><td class="wn">'+t.w+'</td><td class="'+dc+'">'+df+'</td></tr>';
+        h+='<tr><td style="vertical-align:middle"><span class="pos '+pc+'">'+(i+1)+'</span>';
+const [na,nb]=sn(t.name);
+h+='<span style="display:inline-flex;flex-direction:column;gap:1px;overflow:hidden;max-width:200px"><span style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e(na)+'</span>';
+if(nb)h+='<span style="font-size:10px;color:var(--ash);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e(nb)+'</span>';
+h+='</span></td><td class="wn">'+t.w+'</td><td class="'+dc+'">'+df+'</td></tr>';
       });
       h+='</tbody></table>';
       const pl=ms.filter(m=>m['resultado_equipo1']!==''&&m['resultado_equipo1']!=null&&m['resultado_equipo1']!==undefined);
